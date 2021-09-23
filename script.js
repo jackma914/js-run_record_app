@@ -12,14 +12,21 @@ const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
 
 // 글로벌 변수로 만듭니다.
-// let map;
-let mapEvent;
+let map, mapEvent;
 
 class App {
   #map;
   #mapEvent;
   constructor() {
     this._getPosition();
+
+    //submit 버튼이 없고 엔터를 누르면 추가 되도록 함수를 만듭니다.
+    form.addEventListener('submit', this._newWorkout.bind(this));
+
+    // type의 select가 바뀌면 함수가 실행됩니다.toggle을 이용해 바뀌었을때 새로운 html이 나오도록 설정합니다.
+    //elev gain은 부모 요소인 div에 hide 클레스틑 설정해준뒤 toggle을 이용했습니다.
+
+    inputType.addEventListener('change', this._toggleElevationField.bind(this));
   }
 
   _getPosition() {
@@ -44,8 +51,7 @@ class App {
     //L은 leaflet에서 제공하는 중요한 기능입니다. map() 값은 html의 멥이 표시되어햐는 id값이어야합니다.
     this.#map = L.map('map').setView(coords, 20);
 
-    console.log(map);
-
+    console.log(this);
     //titleLayer은 map의 타일을 바꿀수 있습니다.
     L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
       attribution:
@@ -54,51 +60,44 @@ class App {
 
     // 자바스크립트의 addEventListener 대신 Leaflet 의 on을사용합니다. click 이벤트를 이용해서 좌표를 구합니다.
     // handling clicks on map
-    this.#map.on('click', function (mapE) {
-      this.#mapEvent = mapE;
-      form.classList.remove('hidden');
-      inputDistance.focus();
-    });
+    this.#map.on('click', this._showForm.bind(this));
   }
-  _showForm() {}
-  _toggleElevationField() {}
-  _newWorkout() {}
+  _showForm(mepE) {
+    this.#mapEvent = mepE;
+    form.classList.remove('hidden');
+    inputDistance.focus();
+  }
+  _toggleElevationField() {
+    inputElevation.closest('.form__row').classList.toggle('form__row--hidden');
+    inputCadence.closest('.form__row').classList.toggle('form__row--hidden');
+  }
+  _newWorkout(e) {
+    e.preventDefault();
+
+    //추가 되거나 리프레쉬가 되면 리셋됩니다.
+    inputDistance.value =
+      inputDuration.value =
+      inputCadence.value =
+      inputElevation.value =
+        '';
+
+    //display marker
+    console.log(this.#mapEvent);
+    const { lat, lng } = this.#mapEvent.latlng;
+    L.marker({ lat, lng })
+      .addTo(this.#map)
+      .bindPopup(
+        L.popup({
+          minWidth: 100,
+          maxWidth: 250,
+          autoClose: false,
+          closeOnClick: false,
+          className: 'running-popup',
+        })
+      )
+      .setPopupContent('Workout')
+      .openPopup();
+  }
 }
 
 const app = new App();
-
-//submit 버튼이 없고 엔터를 누르면 추가 되도록 함수를 만듭니다.
-form.addEventListener('submit', function (e) {
-  e.preventDefault();
-
-  //추가 되거나 리프레쉬가 되면 리셋됩니다.
-  inputDistance.value =
-    inputDuration.value =
-    inputCadence.value =
-    inputElevation.value =
-      '';
-
-  //display marker
-  const { lat, lng } = mapEvent.latlng;
-  L.marker({ lat, lng })
-    .addTo(map)
-    .bindPopup(
-      L.popup({
-        minWidth: 100,
-        maxWidth: 250,
-        autoClose: false,
-        closeOnClick: false,
-        className: 'running-popup',
-      })
-    )
-    .setPopupContent('Workout')
-    .openPopup();
-});
-
-// type의 select가 바뀌면 함수가 실행됩니다.toggle을 이용해 바뀌었을때 새로운 html이 나오도록 설정합니다.
-//elev gain은 부모 요소인 div에 hide 클레스틑 설정해준뒤 toggle을 이용했습니다.
-
-inputType.addEventListener('change', function () {
-  inputElevation.closest('.form__row').classList.toggle('form__row--hidden');
-  inputCadence.closest('.form__row').classList.toggle('form__row--hidden');
-});
