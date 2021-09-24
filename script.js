@@ -12,11 +12,12 @@ const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
 
 // 글로벌 변수로 만듭니다.
-let map, mapEvent;
+// let map, mapEvent;
 
 class App {
   #map;
   #mapEvent;
+
   constructor() {
     this._getPosition();
 
