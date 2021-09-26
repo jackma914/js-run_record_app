@@ -3,14 +3,6 @@
 // prettier-ignore
 const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-const form = document.querySelector('.form');
-const containerWorkouts = document.querySelector('.workouts');
-const inputType = document.querySelector('.form__input--type');
-const inputDistance = document.querySelector('.form__input--distance');
-const inputDuration = document.querySelector('.form__input--duration');
-const inputCadence = document.querySelector('.form__input--cadence');
-const inputElevation = document.querySelector('.form__input--elevation');
-
 // 글로벌 변수로 만듭니다.
 // let map, mapEvent;
 
@@ -50,11 +42,20 @@ class Cyling extends Workout {
   }
 }
 
-const run1 = new Running([39, -12], 5.2, 24, 178);
-const cycling1 = new Cyling([39, -12], 27, 95, 523);
-console.log(run1, cycling1);
+// const run1 = new Running([39, -12], 5.2, 24, 178);
+// const cycling1 = new Cyling([39, -12], 27, 95, 523);
+// console.log(run1, cycling1);
 
 ///////////////////////////////////////////////////////////////////////////'
+
+const form = document.querySelector('.form');
+const containerWorkouts = document.querySelector('.workouts');
+const inputType = document.querySelector('.form__input--type');
+const inputDistance = document.querySelector('.form__input--distance');
+const inputDuration = document.querySelector('.form__input--duration');
+const inputCadence = document.querySelector('.form__input--cadence');
+const inputElevation = document.querySelector('.form__input--elevation');
+
 class App {
   #map;
   #mapEvent;
@@ -114,17 +115,52 @@ class App {
     inputCadence.closest('.form__row').classList.toggle('form__row--hidden');
   }
   _newWorkout(e) {
+    //every() 메서드는 배열 안의 모든 요소가 주어진 판별 함수를 통과하는지 테스트합니다. Boolean 값을 반환합니다.
+    const validInputs = (...inputs) =>
+      inputs.every(inp => Number.isFinite(inp));
+    const allPositive = (...inputs) => inputs.every(inp => inp > 0);
+
     e.preventDefault();
 
-    //추가 되거나 리프레쉬가 되면 리셋됩니다.
-    inputDistance.value =
-      inputDuration.value =
-      inputCadence.value =
-      inputElevation.value =
-        '';
+    // get data from form
 
-    //display marker
-    console.log(this.#mapEvent);
+    //html value값입니다.
+    const type = inputType.value;
+    const distance = +inputDistance.value;
+    const duration = +inputDuration.value;
+
+    // if workout running, create running object
+    if (type === 'running') {
+      const cadence = +inputCadence.value;
+
+      // check if data is valid
+      // Number.isFinite() 메서드는 주어진 값이 유한수인지 판별합니다.
+      if (
+        // !Number.isFinite(distance) ||
+        // !Number.isFinite(duration) ||
+        // !Number.isFinite(cadence)
+        !validInputs(distance, duration, cadence) ||
+        !allPositive(distance, duration, cadence)
+      )
+        return alert('input have to be positive numbers!');
+    }
+
+    if (type === 'cycling') {
+      // if workout cycling, create cycling object
+      const elevation = +inputElevation.value;
+
+      if (
+        // !Number.isFinite(distance) ||
+        // !Number.isFinite(duration) ||
+        // !Number.isFinite(cadence)
+        !validInputs(distance, duration, elevation) ||
+        !allPositive(distance, duration, elevation)
+      )
+        return alert('input have to be positive numbers!');
+    }
+    // add new object to workout array
+
+    // render workout on map as marker
     const { lat, lng } = this.#mapEvent.latlng;
     L.marker({ lat, lng })
       .addTo(this.#map)
@@ -139,6 +175,15 @@ class App {
       )
       .setPopupContent('Workout')
       .openPopup();
+
+    //render workout on list
+
+    //추가 되거나 리프레쉬가 되면 리셋됩니다.
+    inputDistance.value =
+      inputDuration.value =
+      inputCadence.value =
+      inputElevation.value =
+        '';
   }
 }
 
