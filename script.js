@@ -24,4 +24,34 @@ const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
 
 //
-navigator.geolocation.getCurrentPosition();
+if (navigator.geolocation) {
+  navigator.geolocation.getCurrentPosition(
+    position => {
+      console.log(position);
+      const { latitude } = position.coords;
+      const { longitude } = position.coords;
+      console.log(`https://www.google.com/maps/@${latitude},${longitude}`);
+
+      //먼저 var를 const로 바꿔줍니다. map 함수에는 HTML의 body에 "map" id를 가진 요소가 필요합니다. <div id="map"><div>
+
+      //setView와 marker에서 원하는값이 배열이기때문에 latitude와 longitude를 배열고 묶어주겠습니다.
+      const coords = [latitude, longitude];
+      console.log(coords);
+
+      const map = L.map('map').setView(coords, 13);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution:
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      }).addTo(map);
+
+      L.marker(coords)
+        .addTo(map)
+        .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
+        .openPopup();
+    },
+    () => {
+      alert('could not get your position');
+    }
+  );
+}
