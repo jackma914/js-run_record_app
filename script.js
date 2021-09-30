@@ -23,7 +23,9 @@ const inputDuration = document.querySelector('.form__input--duration');
 const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
 
-//
+//map을 그롤벌 변수로 바꾸어줍니다.
+let map, mapEvent;
+
 if (navigator.geolocation) {
   navigator.geolocation.getCurrentPosition(
     position => {
@@ -38,31 +40,21 @@ if (navigator.geolocation) {
       const coords = [latitude, longitude];
       console.log(coords);
 
-      const map = L.map('map').setView(coords, 13);
+      map = L.map('map').setView(coords, 13);
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
         attribution:
           '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       }).addTo(map);
 
       //leaflet의 on 메소드는 addeventlistener과 같습니다.
-      map.on('click', mapEvent => {
-        // console.log(mapEvent);
-        const { lat, lng } = mapEvent.latlng;
+      //map.on 메소드 값을 mapEvent 글로벌 변수로 만들어줍니다.
+      map.on('click', mapE => {
+        mapEvent = mapE;
+        form.classList.remove('hidden');
+        inputDistance.focus();
 
-        L.marker({ lat, lng })
-          .addTo(map)
-          .bindPopup(
-            L.popup({
-              minWidth: 250,
-              minWidth: 100,
-              autoClose: false,
-              closeOnClick: false,
-              className: 'runnung-popup',
-            })
-          )
-          .setPopupContent('workout')
-          .openPopup();
+        // console.log(mapEvent);
       });
     },
     () => {
@@ -70,3 +62,36 @@ if (navigator.geolocation) {
     }
   );
 }
+
+form.addEventListener('submit', e => {
+  e.preventDefault();
+
+  // submit이 실행되면 입력했던 값들이 리셋됩니다.
+  inputElevation.value =
+    inputCadence.value =
+    inputDuration.value =
+    inputDistance.value =
+      '';
+
+  //디스플레이 마커 입니다.
+  const { lat, lng } = mapEvent.latlng;
+  L.marker({ lat, lng })
+    .addTo(map)
+    .bindPopup(
+      L.popup({
+        minWidth: 250,
+        minWidth: 100,
+        autoClose: false,
+        closeOnClick: false,
+        className: 'running-popup',
+      })
+    )
+    .setPopupContent('workout')
+    .openPopup();
+});
+
+//type의 값이 변하면 토글을 이용해 옵션을 바뀌게 하였습니다.
+inputType.addEventListener('change', function () {
+  inputElevation.closest('.form__row').classList.toggle('form__row--hidden');
+  inputCadence.closest('.form__row').classList.toggle('form__row--hidden');
+});
