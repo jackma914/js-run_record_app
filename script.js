@@ -24,44 +24,56 @@ const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
 
 //map을 그롤벌 변수로 바꾸어줍니다.
-let map, mapEvent;
 
-if (navigator.geolocation) {
-  navigator.geolocation.getCurrentPosition(
-    position => {
-      console.log(position);
-      const { latitude } = position.coords;
-      const { longitude } = position.coords;
-      console.log(`https://www.google.com/maps/@${latitude},${longitude}`);
+class App {
+  #map;
+  #mapEvent;
 
-      //먼저 var를 const로 바꿔줍니다. map 함수에는 HTML의 body에 "map" id를 가진 요소가 필요합니다. <div id="map"><div>
+  constructor() {
+    this._getPosition();
+  }
 
-      //setView와 marker에서 원하는값이 배열이기때문에 latitude와 longitude를 배열고 묶어주겠습니다.
-      const coords = [latitude, longitude];
-      console.log(coords);
-
-      map = L.map('map').setView(coords, 13);
-
-      L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
-        attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      }).addTo(map);
-
-      //leaflet의 on 메소드는 addeventlistener과 같습니다.
-      //map.on 메소드 값을 mapEvent 글로벌 변수로 만들어줍니다.
-      map.on('click', mapE => {
-        mapEvent = mapE;
-        form.classList.remove('hidden');
-        inputDistance.focus();
-
-        // console.log(mapEvent);
+  _getPosition() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(this._loadMap.bind(this), () => {
+        alert('could not get your position');
       });
-    },
-    () => {
-      alert('could not get your position');
     }
-  );
+  }
+  _loadMap(position) {
+    const { latitude } = position.coords;
+    const { longitude } = position.coords;
+    console.log(`https://www.google.com/maps/@${latitude},${longitude}`);
+
+    //먼저 var를 const로 바꿔줍니다. map 함수에는 HTML의 body에 "map" id를 가진 요소가 필요합니다. <div id="map"><div>
+
+    //setView와 marker에서 원하는값이 배열이기때문에 latitude와 longitude를 배열고 묶어주겠습니다.
+    const coords = [latitude, longitude];
+
+    this.#map = L.map('map').setView(coords, 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    }).addTo(this.#map);
+
+    //leaflet의 on 메소드는 addeventlistener과 같습니다.
+    //map.on 메소드 값을 mapEvent 글로벌 변수로 만들어줍니다.
+    this.#map.on('click', mapE => {
+      this.#mapEvent = mapE;
+      form.classList.remove('hidden');
+      inputDistance.focus();
+
+      // console.log(mapEvent);
+    });
+  }
+
+  _showForm() {}
+  _toggleElevationField() {}
+  _newWorkout() {}
 }
+
+const app = new App();
 
 form.addEventListener('submit', e => {
   e.preventDefault();
