@@ -350,65 +350,81 @@ const inputDuration = document.querySelector('.form__input--duration');
 const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
 
-let map, mapEvent;
+class App {
+  #map;
+  #mapEvent;
 
-if (navigator.geolocation)
-  navigator.geolocation.getCurrentPosition(
-    function (position) {
-      const { latitude } = position.coords;
-      const { longitude } = position.coords;
-      const coords = [latitude, longitude];
+  constructor() {
+    this._getPosition();
 
-      map = L.map('map').setView(coords, 13);
+    //디스플레이 마커
+    form.addEventListener('submit', this._newWorkout.bind(this));
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      }).addTo(map);
+    // closest 중요 !!Important
+    inputType.addEventListener('change', this._toggleElevationField);
+  }
 
-      map.on('click', function (mapE) {
-        form.classList.remove('hidden');
-        inputDistance.focus();
-        mapEvent = mapE;
-      });
-    },
+  //
+  _getPosition() {
+    if (navigator.geolocation)
+      navigator.geolocation.getCurrentPosition(
+        this._loadMap.bind(this),
+        function () {
+          alert('could not get your position');
+        }
+      );
+  }
 
-    function () {
-      alert('could not get your position');
-    }
-  );
+  _loadMap(position) {
+    const { latitude } = position.coords;
+    const { longitude } = position.coords;
+    const coords = [latitude, longitude];
 
-//디스플레이 마커
-form.addEventListener('submit', function (e) {
-  e.preventDefault();
+    this.#map = L.map('map').setView(coords, 13);
 
-  //clear input fields, 이벤트가 활성화 된뒤에는 input의 숫자는 초기화 됩니다.
-  inputDuration.value =
-    inputDistance.value =
-    inputCadence.value =
-    inputElevation.value =
-      '';
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    }).addTo(this.#map);
+    this.#map.on('click', this._showForm.bind(this));
+  }
 
-  //디스플레이 마커
-  console.log(mapEvent);
-  const { lat, lng } = mapEvent.latlng;
-  L.marker([lat, lng])
-    .addTo(map)
-    .bindPopup(
-      L.popup({
-        maxWidth: 250,
-        minWidth: 100,
-        autoClose: false,
-        closeOnClick: false,
-        className: 'running-popup',
-      })
-    )
-    .setPopupContent('Workout')
-    .openPopup();
-});
+  _showForm(mapE) {
+    form.classList.remove('hidden');
+    inputDistance.focus();
+    this.#mapEvent = mapE;
+  }
 
-// closest 중요 !!Important
-inputType.addEventListener('change', function () {
-  inputElevation.closest('.form__row').classList.toggle('form__row--hidden');
-  inputCadence.closest('.form__row').classList.toggle('form__row--hidden');
-});
+  _toggleElevationField() {
+    inputElevation.closest('.form__row').classList.toggle('form__row--hidden');
+    inputCadence.closest('.form__row').classList.toggle('form__row--hidden');
+  }
+
+  _newWorkout(e) {
+    e.preventDefault();
+    //clear input fields, 이벤트가 활성화 된뒤에는 input의 숫자는 초기화 됩니다.
+    inputDuration.value =
+      inputDistance.value =
+      inputCadence.value =
+      inputElevation.value =
+        '';
+
+    //디스플레이 마커
+    const { lat, lng } = this.#mapEvent.latlng;
+    L.marker([lat, lng])
+      .addTo(this.#map)
+      .bindPopup(
+        L.popup({
+          maxWidth: 250,
+          minWidth: 100,
+          autoClose: false,
+          closeOnClick: false,
+          className: 'running-popup',
+        })
+      )
+      .setPopupContent('Workout')
+      .openPopup();
+  }
+}
+
+const app = new App();
