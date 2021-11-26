@@ -351,31 +351,34 @@ const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
 
 class App {
+  // private 인스턴스 필드
   #map;
   #mapEvent;
 
   constructor() {
-    this._getPosition();
+    this.getPosition();
 
     //디스플레이 마커
-    form.addEventListener('submit', this._newWorkout.bind(this));
+    form.addEventListener('submit', this.newWorkout.bind(this));
 
     // closest 중요 !!Important
-    inputType.addEventListener('change', this._toggleElevationField);
+    inputType.addEventListener('change', this.toggleElevationField);
   }
 
   //
-  _getPosition() {
+  getPosition() {
     if (navigator.geolocation)
+      // getCurrentPosition 메소드에는 성공 값과 에러 값을 받습니다.
       navigator.geolocation.getCurrentPosition(
-        this._loadMap.bind(this),
+        this.loadMap.bind(this),
         function () {
           alert('could not get your position');
         }
       );
   }
 
-  _loadMap(position) {
+  loadMap(position) {
+    console.log(this);
     const { latitude } = position.coords;
     const { longitude } = position.coords;
     const coords = [latitude, longitude];
@@ -386,21 +389,22 @@ class App {
       attribution:
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(this.#map);
-    this.#map.on('click', this._showForm.bind(this));
+    this.#map.on('click', this.showForm.bind(this));
   }
 
-  _showForm(mapE) {
+  showForm(mapE) {
     form.classList.remove('hidden');
     inputDistance.focus();
     this.#mapEvent = mapE;
   }
 
-  _toggleElevationField() {
+  toggleElevationField() {
+    console.log(this);
     inputElevation.closest('.form__row').classList.toggle('form__row--hidden');
     inputCadence.closest('.form__row').classList.toggle('form__row--hidden');
   }
 
-  _newWorkout(e) {
+  newWorkout(e) {
     e.preventDefault();
     //clear input fields, 이벤트가 활성화 된뒤에는 input의 숫자는 초기화 됩니다.
     inputDuration.value =
