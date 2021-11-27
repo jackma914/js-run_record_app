@@ -342,14 +342,6 @@ const months = [
   'December',
 ];
 
-const form = document.querySelector('.form');
-const containerWorkouts = document.querySelector('.workouts');
-const inputType = document.querySelector('.form__input--type');
-const inputDistance = document.querySelector('.form__input--distance');
-const inputDuration = document.querySelector('.form__input--duration');
-const inputCadence = document.querySelector('.form__input--cadence');
-const inputElevation = document.querySelector('.form__input--elevation');
-
 class Workout {
   date = new Date();
   id = (Date.now() + '').slice(-10);
@@ -362,6 +354,7 @@ class Workout {
 }
 
 class Running extends Workout {
+  type = 'running';
   constructor(coords, distance, duration, cadence) {
     super(coords, distance, duration);
     this.cadence = cadence;
@@ -375,6 +368,7 @@ class Running extends Workout {
   }
 }
 class Cycling extends Workout {
+  type = 'cycling';
   constructor(coords, distance, duration, elevationGain) {
     super(coords, distance, duration);
     this.elevationGain = elevationGain;
@@ -387,20 +381,29 @@ class Cycling extends Workout {
   }
 }
 
-const run1 = new Running([30, -12], 5.2, 24, 178);
+const run1 = new Running();
 const run2 = new Cycling([30, -12], 5.2, 24, 178);
-console.log(run1, run2);
+// console.log(run1, run2);
 
-//--------------------------------------------------------------App
+// --------------App------------------------------
+
+const form = document.querySelector('.form');
+const containerWorkouts = document.querySelector('.workouts');
+const inputType = document.querySelector('.form__input--type');
+const inputDistance = document.querySelector('.form__input--distance');
+const inputDuration = document.querySelector('.form__input--duration');
+const inputCadence = document.querySelector('.form__input--cadence');
+const inputElevation = document.querySelector('.form__input--elevation');
 
 class App {
   // private 인스턴스 필드
   #map;
   #mapEvent;
+  #workouts = [];
 
   constructor() {
+    console.log(this.#workouts);
     this.getPosition();
-
     //디스플레이 마커
     form.addEventListener('submit', this.newWorkout.bind(this));
 
@@ -431,33 +434,95 @@ class App {
       attribution:
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(this.#map);
+
+    //위치를 데이터를 showForm으로 보냅니다.
     this.#map.on('click', this.showForm.bind(this));
   }
 
   showForm(mapE) {
     form.classList.remove('hidden');
     inputDistance.focus();
+
+    //showForm에서 받아온 위치 위치 데이터를 전역변수로 설정해줍니다.
     this.#mapEvent = mapE;
   }
 
   toggleElevationField() {
-    console.log(this);
     inputElevation.closest('.form__row').classList.toggle('form__row--hidden');
     inputCadence.closest('.form__row').classList.toggle('form__row--hidden');
   }
 
   newWorkout(e) {
     e.preventDefault();
-    //clear input fields, 이벤트가 활성화 된뒤에는 input의 숫자는 초기화 됩니다.
+
+    // validInputs는 아래 3줄의 코드를 every 메서드를 이용하여 간결한 코드로 만들었습니다.
+    // !Number.isFinite(distance) ||
+    //   !Number.isFinite(duration) ||
+    //   !Number.isFinite(cadence);
+    const validInputs = (...inputs) =>
+      inputs.every(num => Number.isFinite(num));
+
+    // running의 cadence에는 - 숫자가 들어갈수 없습니다. 하지만 elevation은 - 를 사용할수 있습니다. - 를 골라내는 함수를 만들었습니다.
+    const allPositive = (...inputs) => inputs.every(num => num > 0);
+
+    // get data from form 폼에서 데이터를 받아옵니다.
+    const type = inputType.value;
+    const distance = +inputDistance.value;
+    const duration = +inputDuration.value;
+    const { lat, lng } = this.#mapEvent.latlng;
+
+    // 아래 if 문에 있는 workout은 스코프 체인으로 인해 밖에서 사용할수 없습니다. 블록 범위 밖에서 선언함으로써 사용이 가능해집니다.
+    let workout;
+
+    // if workout running, create running object
+    if (type === 'running') {
+      const cadence = +inputCadence.value;
+
+      // check if data is valid
+      // validInputs 함수를 이용하여 input의 값이 유한수가 아닌것을 골라서 에러를 출력합니다.
+      if (
+        !validInputs(distance, duration, cadence) ||
+        !allPositive(distance, duration, cadence)
+      )
+        return alert('Input have to be positive numbers!');
+
+      workout = new Running([lat, lng], distance, duration, cadence);
+    }
+
+    // if workout cycling, create running object
+
+    if (type === 'cycling') {
+      const elevation = +inputElevation.value;
+
+      // check if data is valid
+      // validInputs 함수를 이용하여 input의 값이 유한수가 아닌것을 골라서 에러를 출력합니다.
+      if (
+        !validInputs(distance, duration, elevation) ||
+        !allPositive(distance, duration)
+      )
+        return alert('Input have to be positive numbers!');
+
+      workout = new Cycling([lat, lng], distance, duration, elevation);
+    }
+
+    // add new object to workout array, workout으로 받아온 Running의 값을 push 메서드로 #workouts에 담아줍니다.
+    this.#workouts.push(workout);
+
+    // render workout on map as marker
+    this.renderWorkoutMarker(workout);
+    console.log(workout);
+
+    // hide form + clear input fields, 이벤트가 활성화 된뒤에는 input의 숫자는 초기화 됩니다.
     inputDuration.value =
       inputDistance.value =
       inputCadence.value =
       inputElevation.value =
         '';
+  }
 
-    //디스플레이 마커
-    const { lat, lng } = this.#mapEvent.latlng;
-    L.marker([lat, lng])
+  renderWorkoutMarker(workout) {
+    // render workout on map as marker 디스플레이 마커
+    L.marker(workout.coords)
       .addTo(this.#map)
       .bindPopup(
         L.popup({
@@ -465,10 +530,11 @@ class App {
           minWidth: 100,
           autoClose: false,
           closeOnClick: false,
-          className: 'running-popup',
+          //popup에는 설정 해놓은 css를 참고하여 className을 type으로 변경해서 마커의 색을 running과 cycling을 구분하게 해주었습니다.
+          className: `${workout.type}-popup`,
         })
       )
-      .setPopupContent('Workout')
+      .setPopupContent('workout')
       .openPopup();
   }
 }

@@ -3,3 +3,8 @@
 //     "editor.background": "#1B365C"
 //   }
 // }
+{
+  "editor.tokenColorCustomizations": {
+    "comments": "#A2A2A2"
+  }
+}
