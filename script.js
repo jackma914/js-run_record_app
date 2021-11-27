@@ -327,21 +327,6 @@
 
 'use strict';
 
-const months = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
-];
-
 class Workout {
   date = new Date();
   id = (Date.now() + '').slice(-10);
@@ -351,6 +336,28 @@ class Workout {
     this.distance = distance; // in km
     this.duration = duration; // in min
   }
+
+  setDescription() {
+    // prettier-ignore
+    const months = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
+
+    this.description = `${this.type[0].toUpperCase()}${this.type.slice(1)} on ${
+      months[this.date.getMonth()]
+    }${this.date.getDate()}`;
+  }
 }
 
 class Running extends Workout {
@@ -359,6 +366,7 @@ class Running extends Workout {
     super(coords, distance, duration);
     this.cadence = cadence;
     this.calcPace();
+    this.setDescription();
   }
 
   calcPace() {
@@ -373,6 +381,7 @@ class Cycling extends Workout {
     super(coords, distance, duration);
     this.elevationGain = elevationGain;
     this.calcSpeed();
+    this.setDescription();
   }
 
   calcSpeed() {
@@ -402,7 +411,6 @@ class App {
   #workouts = [];
 
   constructor() {
-    console.log(this.#workouts);
     this.getPosition();
     //디스플레이 마커
     form.addEventListener('submit', this.newWorkout.bind(this));
@@ -443,8 +451,24 @@ class App {
     form.classList.remove('hidden');
     inputDistance.focus();
 
-    //showForm에서 받아온 위치 위치 데이터를 전역변수로 설정해줍니다.
+    //showForm에서 받아온 위치 데이터를 전역변수로 설정해줍니다.
     this.#mapEvent = mapE;
+  }
+
+  hideForm() {
+    // hide form + clear input fields, 이벤트가 활성화 된뒤에는 input의 숫자는 초기화 됩니다.
+    inputDuration.value =
+      inputDistance.value =
+      inputCadence.value =
+      inputElevation.value =
+        '';
+
+    // 하나의 form이 완성되면 input form이 hidden됩니다.
+    form.classList.add('hidden');
+
+    // 아래의 두줄의 코드는 옵션정도로 생각하면됩니다. 위의 add hidden 코드로인해 추가되면서 기존 가지고있던 css의 .form에서 display가 none이 됩니다. setTimeout을 이용하여 grid를 다시 추가해줬습니다.
+    form.style.display = 'none';
+    setTimeout(() => (form.style.display = 'grid'), 1000);
   }
 
   toggleElevationField() {
@@ -510,18 +534,18 @@ class App {
 
     // render workout on map as marker
     this.renderWorkoutMarker(workout);
-    console.log(workout);
+
+    // render workout on list
+    this.renderWorkout(workout);
 
     // hide form + clear input fields, 이벤트가 활성화 된뒤에는 input의 숫자는 초기화 됩니다.
-    inputDuration.value =
-      inputDistance.value =
-      inputCadence.value =
-      inputElevation.value =
-        '';
+    this.hideForm();
   }
 
   renderWorkoutMarker(workout) {
     // render workout on map as marker 디스플레이 마커
+    console.log(workout);
+
     L.marker(workout.coords)
       .addTo(this.#map)
       .bindPopup(
@@ -534,8 +558,58 @@ class App {
           className: `${workout.type}-popup`,
         })
       )
-      .setPopupContent('workout')
+      .setPopupContent(
+        `${workout.type === 'running' ? '🏃‍♂️' : '🚴‍♀️'}${workout.description}`
+      )
       .openPopup();
+  }
+
+  renderWorkout(workout) {
+    let html = `   
+    <li class="workout workout--${workout.type}" data-id="${workout.id}">
+      <h2 class="workout__title">${workout.description}</h2>
+      <div class="workout__details">
+        <span class="workout__icon">${
+          workout.type === 'running' ? '🏃‍♂️' : '🚴‍♀️'
+        }</span>
+        <span class="workout__value">${workout.distance}</span>
+        <span class="workout__unit">km</span>
+      </div>
+      <div class="workout__details">
+        <span class="workout__icon">⏱</span>
+        <span class="workout__value">${workout.duration}</span>
+        <span class="workout__unit">min</span>
+      </div>`;
+
+    if (workout.type === 'running')
+      html += `
+    <div class="workout__details">
+      <span class="workout__icon">⚡️</span>
+      <span class="workout__value">${workout.pace.toFixed(1)}</span>
+      <span class="workout__unit">min/km</span>
+    </div>
+    <div class="workout__details">
+      <span class="workout__icon">🦶🏼</span>
+      <span class="workout__value">${workout.cadence}</span>
+      <span class="workout__unit">spm</span>
+    </div>
+  </li>`;
+
+    if (workout.type === 'cycling')
+      html += `
+          <div class="workout__details">
+            <span class="workout__icon">⚡️</span>
+            <span class="workout__value">${workout.speed.toFixed(1)}</span>
+            <span class="workout__unit">km/h</span>
+          </div>
+          <div class="workout__details">
+            <span class="workout__icon">⛰</span>
+            <span class="workout__value">${workout.elevationGain}</span>
+            <span class="workout__unit">m</span>
+          </div>
+        </li> -->`;
+
+    form.insertAdjacentHTML('afterend', html);
   }
 }
 
