@@ -330,6 +330,7 @@
 class Workout {
   date = new Date();
   id = (Date.now() + '').slice(-10);
+  clicks = 0;
 
   constructor(coords, distance, duration) {
     this.coords = coords; // [lat, lng]
@@ -357,6 +358,10 @@ class Workout {
     this.description = `${this.type[0].toUpperCase()}${this.type.slice(1)} on ${
       months[this.date.getMonth()]
     }${this.date.getDate()}`;
+  }
+
+  click() {
+    this.clicks++;
   }
 }
 
@@ -390,8 +395,8 @@ class Cycling extends Workout {
   }
 }
 
-const run1 = new Running();
-const run2 = new Cycling([30, -12], 5.2, 24, 178);
+// const run1 = new Running();
+// const run2 = new Cycling([30, -12], 5.2, 24, 178);
 // console.log(run1, run2);
 
 // --------------App------------------------------
@@ -409,6 +414,7 @@ class App {
   #map;
   #mapEvent;
   #workouts = [];
+  #mapZoomLevel = 13;
 
   constructor() {
     this.getPosition();
@@ -417,6 +423,8 @@ class App {
 
     // closest 중요 !!Important
     inputType.addEventListener('change', this.toggleElevationField);
+
+    containerWorkouts.addEventListener('click', this.moveToPopup.bind(this));
   }
 
   //
@@ -436,7 +444,7 @@ class App {
     const { longitude } = position.coords;
     const coords = [latitude, longitude];
 
-    this.#map = L.map('map').setView(coords, 13);
+    this.#map = L.map('map').setView(coords, this.#mapZoomLevel);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution:
@@ -610,6 +618,28 @@ class App {
         </li> -->`;
 
     form.insertAdjacentHTML('afterend', html);
+  }
+
+  moveToPopup(e) {
+    const workoutEl = e.target.closest('.workout');
+    console.log(workoutEl);
+
+    if (!workoutEl) return;
+
+    const workout = this.#workouts.find(
+      work => work.id === workoutEl.dataset.id
+    );
+    console.log(workout);
+
+    this.#map.setView(workout.coords, this.#mapZoomLevel, {
+      animate: true,
+      pan: {
+        duration: 1,
+      },
+    });
+
+    // using the public interface
+    workout.click();
   }
 }
 
