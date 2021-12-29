@@ -1,9 +1,19 @@
 'use strict';
 
-class Workout {
-  constructor(distance, duration, type) {}
-}
-
+const months = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
 // APPLICATION ARCHITECTURE
 const form = document.querySelector('.form');
 const containerWorkouts = document.querySelector('.workouts');
@@ -19,61 +29,80 @@ class App {
 
   constructor() {
     this.getPosition();
+
+    form.addEventListener('submit', this.newWorkout.bind(this));
+
+    inputType.addEventListener('change', function () {
+      inputElevation
+        .closest('.form__row')
+        .classList.toggle('form__row--hidden');
+      inputCadence.closest('.form__row').classList.toggle('form__row--hidden');
+    });
   }
 
   getPosition() {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(this.loadMap.bind(this));
-    }
+    if (navigator.geolocation)
+      navigator.geolocation.getCurrentPosition(
+        this.loadMap.bind(this),
+        function () {
+          alert('error');
+        }
+      );
   }
 
   loadMap(position) {
-    const { latitude, longitude } = position.coords;
+    const { latitude } = position.coords;
+    const { longitude } = position.coords;
+    const coords = [latitude, longitude];
 
-    this.#map = L.map('map').setView([latitude, longitude], 13);
+    console.log(this);
+    this.#map = L.map('map').setView(coords, 13);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
       attribution:
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(this.#map);
 
+    //handling clicks on map
+    console.log(this);
     this.#map.on('click', this.showForm.bind(this));
+  }
 
-    L.marker([latitude, longitude])
-      .addTo(this.#map)
-      .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
-      .openPopup();
+  showForm(mapE) {
+    this.#mapEvent = mapE;
+    form.classList.remove('hidden');
+    inputDistance.focus();
+    console.log(mapE);
+  }
+  toggleElevationField() {}
 
-    L.marker(workout.coords)
+  newWorkout(e) {
+    e.preventDefault();
+
+    //clear input fields
+    inputDistance.value =
+      inputDuration.value =
+      inputCadence.value =
+      inputElevation.value =
+        '';
+
+    //marker
+    const { lat, lng } = this.#mapEvent.latlng;
+    L.marker([lat, lng])
       .addTo(this.#map)
       .bindPopup(
+        //leaflst의 여러 옵션입니다.
         L.popup({
           maxWidth: 250,
           minWidth: 100,
           autoClose: false,
           closeOnClick: false,
-          //popup에는 설정 해놓은 css를 참고하여 className을 type으로 변경해서 마커의 색을 running과 cycling을 구분하게 해주었습니다.
-          className: `${workout.type}-popup`,
+          className: 'running-popup',
         })
       )
-      .openPopup();
+      .openPopup()
+      .setPopupContent('Workout');
   }
-  showForm(mapE) {
-    inputDistance.focus();
-    console.log(mapE);
-    form.classList.remove('hidden');
-
-    this.#mapEvent = mapE;
-  }
-
-  newWorkout() {
-    inputType.value;
-  }
-
-  renderWorkout() {}
-  renderWorkoutMarker() {}
-  hideForm() {}
-  toggleElevationField() {}
 }
 
 const app = new App();
