@@ -27,6 +27,7 @@ class Workout {
 }
 
 class Running extends Workout {
+  type = 'running';
   constructor(coords, distance, duration, cadence) {
     super(coords, distance, duration);
     this.cadence = cadence;
@@ -40,6 +41,8 @@ class Running extends Workout {
   }
 }
 class Cycling extends Workout {
+  type = 'cycling';
+
   constructor(coords, distance, duration, elevationGain) {
     super(coords, distance, duration);
     this.elevationGain = elevationGain;
@@ -69,6 +72,7 @@ const inputElevation = document.querySelector('.form__input--elevation');
 class App {
   #map;
   #mapEvent;
+  #workouts = [];
 
   constructor() {
     this.getPosition();
@@ -120,6 +124,10 @@ class App {
   toggleElevationField() {}
 
   newWorkout(e) {
+    const validInputs = (...input) => input.every(inp => Number.isFinite(inp));
+    const allPositive = (...inputs) => inputs.every(inp => inp > 0);
+    const { lat, lng } = this.#mapEvent.latlng;
+    let workout;
     e.preventDefault();
 
     const type = inputType.value;
@@ -128,11 +136,30 @@ class App {
 
     if (type === 'running') {
       const cadence = +inputCadence.value;
+      if (
+        !validInputs(distance, duration, cadence) ||
+        !allPositive(distance, duration, cadence)
+      ) {
+        return alert('input have to be positive numbers');
+      }
+      workout = new Running([lat, lng], distance, duration, cadence);
     }
 
     if (type === 'cycling') {
       const elevation = +inputElevation.value;
+
+      if (
+        !validInputs(distance, duration, elevation) ||
+        !allPositive(distance, duration)
+      ) {
+        return alert('input have to be positive numbers');
+      }
+
+      workout = new Cycling([lat, lng], distance, duration, elevation);
     }
+
+    this.#workouts.push(workout);
+
     //clear input fields
     inputDistance.value =
       inputDuration.value =
@@ -140,9 +167,12 @@ class App {
       inputElevation.value =
         '';
 
+    this.renderWrokoutMarkerworkout(workout);
+  }
+
+  renderWrokoutMarkerworkout(workout) {
     //marker
-    const { lat, lng } = this.#mapEvent.latlng;
-    L.marker([lat, lng])
+    L.marker(workout.coords)
       .addTo(this.#map)
       .bindPopup(
         //leaflst의 여러 옵션입니다.
@@ -151,7 +181,7 @@ class App {
           minWidth: 100,
           autoClose: false,
           closeOnClick: false,
-          className: 'running-popup',
+          className: `${workout.type}-popup`,
         })
       )
       .openPopup()
