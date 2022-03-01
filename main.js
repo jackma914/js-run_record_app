@@ -1,6 +1,6 @@
 'use strict';
 
-import GeolocationMap from './modules/Geolocation .js';
+import { GeolocationMap } from './modules/Geolocation.js';
 
 // prettier-ignore
 const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -12,3 +12,5 @@ const inputDistance = document.querySelector('.form__input--distance');
 const inputDuration = document.querySelector('.form__input--duration');
 const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
+
+GeolocationMap();
