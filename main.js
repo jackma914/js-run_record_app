@@ -22,6 +22,8 @@ class Workout {
 }
 
 class Running extends Workout {
+  type = 'running';
+
   constructor(coords, distance, duration, cadence) {
     super(coords, distance, duration);
     this.cadence = cadence;
@@ -35,6 +37,7 @@ class Running extends Workout {
   }
 }
 class Cycling extends Workout {
+  type = 'cycling';
   constructor(coords, distance, duration, elevationGain) {
     super(coords, distance, duration);
     this.elevationGain = elevationGain;
@@ -54,6 +57,7 @@ class Cycling extends Workout {
 class App {
   #map;
   #mapEvent;
+  #workouts = [];
 
   constructor() {
     this.getPosition();
@@ -101,18 +105,73 @@ class App {
   }
 
   newWorkout(e) {
+    // 유효성 검사 도구 validator
+    const validInputs = (...inputs) =>
+      inputs.every(inp => Number.isFinite(inp));
+    const allPositive = (...inputs) => inputs.every(inp => inp > 0);
+
     e.preventDefault();
 
-    //clear input fields
+    // form 에서 데이터 받아옵니다.
+    const type = inputType.value;
+    const distance = +inputDistance.value;
+    const duration = +inputDuration.value;
+    const { lat, lng } = this.#mapEvent.latlng;
+    let workout;
+
+    // workout running 이면, running 객체 생성
+    if (type === 'running') {
+      const cadence = +inputCadence.value;
+      // 데이터 유효성 검사
+      if (
+        !validInputs(duration, distance, cadence) ||
+        !allPositive(distance, duration, cadence)
+        // !Number.isFinite(distance) ||
+        // !Number.isFinite(duration) ||
+        // !Number.isFinite(cadence)
+      )
+        return alert('숫자와 양수만 입력 가능합니다. ');
+
+      workout = new Running([lat, lng], distance, duration, cadence);
+    }
+
+    // workout cycling 이면, cycling 객체 생성
+    if (type === 'cycling') {
+      if (type === 'cycling') {
+        const elevation = +inputElevation.value;
+        // 데이터 유효성 검사
+        if (
+          !validInputs(duration, distance, elevation) ||
+          !allPositive(distance, duration)
+          // !Number.isFinite(distance) ||
+          // !Number.isFinite(duration) ||
+          // !Number.isFinite(cadence)
+        )
+          return alert('숫자와 양수만 입력 가능합니다. (Elev Gain 음수 가능) ');
+
+        workout = new Cycling([lat, lng], distance, duration, elevation);
+      }
+    }
+
+    // workout 배열에 새 객체 추가
+    this.#workouts.push(workout);
+    console.log(this.#workouts);
+
+    // 마커로 지도에 workout 렌더링
+    this.renderWorkoutMarker(workout);
+
+    // 리스트에 workout 렌더링
+
+    //hide form + input 필드 초기화
     inputDistance.value =
       inputDuration.value =
       inputCadence.value =
       inputElevation.value =
         '';
+  }
 
-    //display 마커
-    const { lat, lng } = this.#mapEvent.latlng;
-    L.marker([lat, lng])
+  renderWorkoutMarker(workout) {
+    L.marker(workout.coords)
       .addTo(this.#map)
       .bindPopup(
         L.popup({
@@ -120,10 +179,10 @@ class App {
           minWidth: 100,
           autoClose: false,
           closeOnClick: false,
-          className: 'running-popup',
+          className: `${workout.type}-popup`,
         })
       )
-      .setPopupContent('Workout')
+      .setPopupContent('workout.distance')
       .openPopup();
   }
 }
