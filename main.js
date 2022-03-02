@@ -8,6 +8,8 @@ const inputDuration = document.querySelector('.form__input--duration');
 const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 class Workout {
   date = new Date();
 
@@ -67,7 +69,13 @@ class App {
   #mapZoomLevel = 13;
 
   constructor() {
+    // 사용자 위치를 받습니다.
     this.getPosition();
+
+    // local storage에서 데이터를 가져옵니다.
+    this.getLocalStorage();
+
+    // event handlers 연결
     form.addEventListener('submit', this.newWorkout.bind(this));
     inputType.addEventListener('change', this.toggleElevationField);
     containerWorkouts.addEventListener('click', this.moveToPopup.bind(this));
@@ -96,6 +104,10 @@ class App {
     // 지도 클링 handling
     // 자바스크립트의 메서드가아닌 leaflet의 on 메서드 입니다.
     this.#map.on('click', this.showForm.bind(this));
+
+    this.#workouts.forEach(work => {
+      this.renderWorkoutMarker(work);
+    });
   }
 
   showForm(mapE) {
@@ -182,6 +194,9 @@ class App {
 
     //hide form + input 필드 초기화
     this.hideForm();
+
+    // 모든 workouts을 local storage 설정
+    this.setLocalStorage();
   }
 
   renderWorkoutMarker(workout) {
@@ -266,6 +281,26 @@ class App {
       pan: {
         duration: 1,
       },
+    });
+  }
+
+  setLocalStorage() {
+    //localstorage에 데이터 저장
+    localStorage.setItem('workouts', JSON.stringify(this.#workouts));
+  }
+
+  getLocalStorage() {
+    //localstorage에 데이터 가져옵니다.
+    const data = JSON.parse(localStorage.getItem('workouts'));
+    console.log(data);
+
+    if (!data) return;
+
+    this.#workouts = data;
+    console.log(this.#workouts);
+
+    this.#workouts.forEach(work => {
+      this.renderWorkout(work);
     });
   }
 }
