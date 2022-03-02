@@ -19,7 +19,6 @@ class Workout {
   }
 
   setDescription() {
-    console.log(this.date);
     // prettier-ignore
     const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -60,21 +59,18 @@ class Cycling extends Workout {
   }
 }
 
-// const run1 = new Running([39, -12], 10, 10, 123);
-// const cycling1 = new Cycling([39, -12], 10, 10, 100);
-// console.log(run1, cycling1);
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class App {
   #map;
   #mapEvent;
   #workouts = [];
+  #mapZoomLevel = 13;
 
   constructor() {
     this.getPosition();
-
     form.addEventListener('submit', this.newWorkout.bind(this));
-
     inputType.addEventListener('change', this.toggleElevationField);
+    containerWorkouts.addEventListener('click', this.moveToPopup.bind(this));
   }
 
   getPosition() {
@@ -91,7 +87,7 @@ class App {
     const { latitude } = position.coords;
     const { longitude } = position.coords;
     const coords = [latitude, longitude];
-    this.#map = L.map('map').setView(coords, 13);
+    this.#map = L.map('map').setView(coords, this.#mapZoomLevel);
     L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
       attribution:
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -177,7 +173,6 @@ class App {
 
     // workout 배열에 새 객체 추가
     this.#workouts.push(workout);
-    console.log(this.#workouts);
 
     // 마커로 지도에 workout 렌더링
     this.renderWorkoutMarker(workout);
@@ -208,7 +203,6 @@ class App {
   }
 
   renderWorkout(workout) {
-    console.log(workout);
     let html = `
           <li class="workout workout--${workout.type}" data-id="${workout.id}">
           <h2 class="workout__title">${workout.description}</h2>
@@ -254,6 +248,25 @@ class App {
         </li>`;
 
     form.insertAdjacentHTML('afterend', html);
+  }
+
+  moveToPopup(e) {
+    const workoutEl = e.target.closest('.workout');
+    console.log(workoutEl);
+
+    if (!workoutEl) return;
+
+    const workout = this.#workouts.find(
+      work => work.id === workoutEl.dataset.id
+    );
+    console.log(workout);
+
+    this.#map.setView(workout.coords, this.#mapZoomLevel, {
+      animate: true,
+      pan: {
+        duration: 1,
+      },
+    });
   }
 }
 
