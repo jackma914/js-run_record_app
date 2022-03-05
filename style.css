@@ -49,10 +49,27 @@ a:visited {
   flex-direction: column;
 }
 
-.logo {
+/* .logo {
   height: 5.2rem;
   align-self: center;
   margin-bottom: 4rem;
+} */
+
+.logo {
+  display: flex;
+  align-self: center;
+}
+.logo__img {
+  height: 5.2rem;
+  width: 5.2rem;
+  /* padding-bottom: 50px; */
+  margin-bottom: 30px;
+  padding-right: 10px;
+}
+
+.logo__name {
+  color: var(--color-light--1);
+  font-size: 30px;
 }
 
 .workouts {
