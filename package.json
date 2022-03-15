@@ -1,7 +1,7 @@
 {
   "scripts": {
     "start": "node server.js",
-    "heroku-postbuild": "npm i && npm start"
+    "heroku-postbuild": "npm i && npm start-"
   },
   "dependencies": {
     "axios": "^0.26.0",
