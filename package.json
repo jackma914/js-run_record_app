@@ -1,9 +1,13 @@
 {
+  "scripts": {
+    "start": "node server.js"
+  },
   "dependencies": {
     "axios": "^0.26.0",
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
     "leaflet": "^1.7.1",
-    "mongoose": "^6.2.4"
+    "mongoose": "^6.2.4",
+    "path": "^0.12.7"
   }
 }
