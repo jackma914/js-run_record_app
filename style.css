@@ -47,6 +47,7 @@ a:visited {
   padding: 3rem 5rem 4rem 5rem;
   display: flex;
   flex-direction: column;
+  transition: all 0.3s ease;
 }
 
 /* .logo {
@@ -208,6 +209,7 @@ a:visited {
 
 /* MAP */
 #map {
+  /* z-index: -1; */
   flex: 1;
   height: 100%;
   background-color: var(--color-light--1);
@@ -235,3 +237,48 @@ a:visited {
 .cycling-popup .leaflet-popup-content-wrapper {
   border-left: 5px solid var(--color-brand--1);
 }
+
+/* 반응형 */
+@media (max-width: 1100px) {
+  .sidebar {
+    transition: all 3s ease;
+    /* left: -800px; */
+    position: relative;
+    flex-basis: 50rem;
+    background-color: var(--color-dark--1);
+    padding: 3rem 5rem 4rem 5rem;
+    flex-direction: column;
+    transition: all 0.3s ease;
+  }
+
+  #map {
+    left: -30px;
+    /* bottom: -10px; */
+    /* top: -10px; */
+  }
+  .sidebar.open {
+    left: 10px;
+    z-index: 1;
+  }
+
+  body {
+    padding: 2.5rem 0rem;
+  }
+
+  .nav-toggler span {
+    height: 2px;
+    width: 18px;
+    top: 15px;
+    left: 11px;
+    background: black;
+    display: table;
+    position: relative;
+    justify-content: center;
+  }
+
+  .section {
+    z-index: 0;
+  }
+}
+
+/* toggle */

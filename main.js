@@ -1,5 +1,9 @@
 'use strict';
 
+const clickMap = document.getElementById('map');
+const section = document.querySelector('.section');
+const navTogglerBtn = document.querySelector('.nav-toggler');
+const sidebar = document.querySelector('.sidebar');
 const form = document.querySelector('.form');
 const containerWorkouts = document.querySelector('.workouts');
 const inputType = document.querySelector('.form__input--type');
@@ -79,6 +83,13 @@ class App {
     form.addEventListener('submit', this.newWorkout.bind(this));
     inputType.addEventListener('change', this.toggleElevationField);
     containerWorkouts.addEventListener('click', this.moveToPopup.bind(this));
+    clickMap.addEventListener('click', this.asideSectionTogglerBtn.bind(this));
+  }
+
+  asideSectionTogglerBtn() {
+    sidebar.classList.toggle('open');
+    navTogglerBtn.classList.toggle('open');
+    // section.classList.toggle('open');
   }
 
   getPosition() {
