@@ -1,8 +1,7 @@
 {
   "scripts": {
     "start": "node server.js",
-    "install-client": "npm install",
-    "heroku-postbuild": "npm install-client"
+    "heroku-postbuild": "npm i && npm start-"
   },
   "dependencies": {
     "axios": "^0.26.0",
