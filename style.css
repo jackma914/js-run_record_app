@@ -34,43 +34,30 @@ body {
   display: flex;
 }
 
-/* GENERAL */
+/* 링크 스타일링*/
 a:link,
 a:visited {
   color: var(--color-brand--1);
 }
 
-/* SIDEBAR */
+/* =========================== 사이드바 start ============================ */
 .sidebar {
   flex-basis: 50rem;
   background-color: var(--color-dark--1);
   padding: 3rem 5rem 4rem 5rem;
   display: flex;
   flex-direction: column;
-  transition: all 0.3s ease;
 }
 
-/* .logo {
+.logo {
+  /* 이미지 중앙 정렬 하는 방법은 2가지 */
+  /* display: block;
+  margin: auto;
+  width: 5.2rem; */
+
   height: 5.2rem;
   align-self: center;
   margin-bottom: 4rem;
-} */
-
-.logo {
-  display: flex;
-  align-self: center;
-}
-.logo__img {
-  height: 5.2rem;
-  width: 5.2rem;
-  /* padding-bottom: 50px; */
-  margin-bottom: 30px;
-  padding-right: 10px;
-}
-
-.logo__name {
-  color: var(--color-light--1);
-  font-size: 30px;
 }
 
 .workouts {
@@ -80,10 +67,12 @@ a:visited {
   overflow-x: hidden;
 }
 
+/* 사이드바의 스크롤바 스타일링 */
 .workouts::-webkit-scrollbar {
   width: 0;
 }
 
+/* 사이드바의  form 입력후 추가되는 form*/
 .workout {
   background-color: var(--color-dark--2);
   border-radius: 5px;
@@ -201,15 +190,13 @@ a:visited {
   color: var(--color-light--1);
   transition: all 0.2s;
 }
-
 .twitter-link:hover,
 .twitter-link:active {
   color: var(--color-light--2);
 }
 
-/* MAP */
+/* ======================== MAP start ========================= */
 #map {
-  /* z-index: -1; */
   flex: 1;
   height: 100%;
   background-color: var(--color-light--1);
@@ -237,48 +224,3 @@ a:visited {
 .cycling-popup .leaflet-popup-content-wrapper {
   border-left: 5px solid var(--color-brand--1);
 }
-
-/* 반응형 */
-@media (max-width: 1100px) {
-  .sidebar {
-    transition: all 3s ease;
-    /* left: -800px; */
-    position: relative;
-    flex-basis: 50rem;
-    background-color: var(--color-dark--1);
-    padding: 3rem 5rem 4rem 5rem;
-    flex-direction: column;
-    transition: all 0.3s ease;
-  }
-
-  #map {
-    left: -30px;
-    /* bottom: -10px; */
-    /* top: -10px; */
-  }
-  .sidebar.open {
-    left: 10px;
-    z-index: 1;
-  }
-
-  body {
-    padding: 2.5rem 0rem;
-  }
-
-  .nav-toggler span {
-    height: 2px;
-    width: 18px;
-    top: 15px;
-    left: 11px;
-    background: black;
-    display: table;
-    position: relative;
-    justify-content: center;
-  }
-
-  .section {
-    z-index: 0;
-  }
-}
-
-/* toggle */

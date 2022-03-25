@@ -12,29 +12,14 @@
     />
 
     <link rel="stylesheet" href="style.css" />
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
-      integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
-      crossorigin=""
-    />
-    <script
-      defer
-      src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
-      integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
-      crossorigin=""
-    ></script>
 
-    <script defer type="module" src="main.js"></script>
-    <title>Run Record App</title>
+    <script defer src="main.js"></script>
+    <title>mapty // Map your workouts</title>
   </head>
-
   <body>
     <div class="sidebar">
-      <div class="logo">
-        <img src="image/logo.png" alt="Logo" class="logo__img" />
-        <div class="logo__name">runcord</div>
-      </div>
+      <img src="/image//logo.png" alt="Logo" class="logo" />
+
       <ul class="workouts">
         <form class="form hidden">
           <div class="form__row">
@@ -95,7 +80,6 @@
             <span class="workout__unit">spm</span>
           </div>
         </li>
-
         <li class="workout workout--cycling" data-id="1234567891">
           <h2 class="workout__title">Cycling on April 5</h2>
           <div class="workout__details">
@@ -121,11 +105,18 @@
         </li> -->
       </ul>
 
-      <p class="copyright">©2022 JUN. All rights Reserved</p>
+      <p class="copyright">
+        &copy; Copyright by
+        <a
+          class="twitter-link"
+          target="_blank"
+          href="https://twitter.com/jonasschmedtman"
+          >Jonas Schmedtmann</a
+        >. Use for learning or your portfolio. Don't use to teach. Don't claim
+        as your own.
+      </p>
     </div>
-    <div class="nav-toggler">
-      <span></span>
-    </div>
-    <div id="map" class="section"></div>
+
+    <div id="map"></div>
   </body>
 </html>
