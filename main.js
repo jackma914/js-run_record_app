@@ -11,70 +11,91 @@ const inputDuration = document.querySelector('.form__input--duration');
 const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
 
-// 글로벌 변수(전역 변수)
-let map, mapEvent;
+// ================================ App 클래스 ============================================
+class App {
+  //Private class fields 선언
+  #map;
+  #mapEvent;
 
-// 콜백과 오류 콜백 인자 두개를 받습니다.
-if (navigator.geolocation) {
-  navigator.geolocation.getCurrentPosition(
-    function (position) {
-      const { latitude } = position.coords;
-      const { longitude } = position.coords;
+  constructor() {
+    //생성자 함수를 이용해서 getPosition() 메서드를 트리거 합니다.
+    this._getPosition();
 
-      const coords = [latitude, longitude];
+    // bind(this)를 하지 않는다면 this.는 form을 바라보게 됩니다.
+    form.addEventListener('submit', this._newWorkout.bind(this));
 
-      // map 함수는 글로벌 변수로 만들었습니다.
-      map = L.map('map').setView(coords, 13);
+    inputType.addEventListener('change', this._toggleElevationField);
+  }
 
-      L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
-        attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      }).addTo(map);
-
-      // 클릭한 곳의 위치정보를 받기 위해 map.on 메서드를 사용합니다.
-      map.on('click', function (mapE) {
-        //받아온 mapE는 클릭한 위치정보입니다. 글로벌 변수 mapEvent에 데이터를 복사하였습니다..
-        mapEvent = mapE;
-        form.classList.remove('hidden');
-        inputDistance.focus();
-      });
-    },
-    function () {
-      alert('위치 정보를 받아오지 못했습니다.');
+  _getPosition() {
+    console.log(this);
+    // 콜백과 오류 콜백 인자 두개를 받습니다.
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        // bind(this)를 사용하여 수동으로 this에 바인딩해줍니다.
+        this._loadMap.bind(this),
+        function () {
+          alert('위치 정보를 받아오지 못했습니다.');
+        }
+      );
     }
-  );
+  }
+  _loadMap(position) {
+    const { latitude } = position.coords;
+    const { longitude } = position.coords;
+
+    const coords = [latitude, longitude];
+
+    // map 함수는 글로벌 변수로 만들었습니다.
+    this.#map = L.map('map').setView(coords, 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    }).addTo(this.#map);
+
+    // 클릭한 곳의 위치정보를 받기 위해 map.on 메서드를 사용합니다.
+    this.#map.on('click', this._showForm.bind(this));
+  }
+  _showForm(mapE) {
+    //받아온 mapE는 클릭한 위치정보입니다. 글로벌 변수 mapEvent에 데이터를 복사하였습니다..
+    this.#mapEvent = mapE;
+    form.classList.remove('hidden');
+    inputDistance.focus();
+  }
+
+  _toggleElevationField() {
+    inputElevation.closest('.form__row').classList.toggle('form__row--hidden');
+    inputCadence.closest('.form__row').classList.toggle('form__row--hidden');
+  }
+  _newWorkout(e) {
+    // console.log(this);
+    e.preventDefault();
+
+    // 이벤트가 발생하고 input를 초기화 해주었습니다.
+    inputDistance.value =
+      inputDuration.value =
+      inputCadence.value =
+      inputElevation.value =
+        '';
+
+    // 마커 표시
+    const { lat, lng } = this.#mapEvent.latlng;
+    L.marker([lat, lng])
+      .addTo(this.#map)
+      .bindPopup(
+        //팝업 마커를 커스텀을 위해 L.popup 메서드를 이용해 옵션을 넣어줍니다.
+        L.popup({
+          maxWidth: 250,
+          minWidth: 100,
+          autoClose: false,
+          closeOnClick: false,
+          className: 'running-popup',
+        })
+      )
+      .setPopupContent('workout')
+      .openPopup();
+  }
 }
 
-form.addEventListener('submit', function (e) {
-  e.preventDefault();
-  console.log(inputDuration);
-
-  // 이벤트가 발생하고 input를 초기화 해주었습니다.
-  inputDistance.value =
-    inputDuration.value =
-    inputCadence.value =
-    inputElevation.value =
-      '';
-
-  // 마커 표시
-  const { lat, lng } = mapEvent.latlng;
-  L.marker([lat, lng])
-    .addTo(map)
-    .bindPopup(
-      //팝업 마커를 커스텀을 위해 L.popup 메서드를 이용해 옵션을 넣어줍니다.
-      L.popup({
-        maxWidth: 250,
-        minWidth: 100,
-        autoClose: false,
-        closeOnClick: false,
-        className: 'running-popup',
-      })
-    )
-    .setPopupContent('workout')
-    .openPopup();
-});
-
-inputType.addEventListener('change', function () {
-  inputElevation.closest('.form__row').classList.toggle('form__row--hidden');
-  inputCadence.closest('.form__row').classList.toggle('form__row--hidden');
-});
+const app = new App();
