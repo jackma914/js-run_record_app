@@ -375,3 +375,87 @@
           .openPopup();
       }
       ```
+
+7.  form이 제출되면 list와 렌더링 합니다. \_renderWorkoutList() 메서드는 html form 태그 element에 넣어 주도록 하겠습니다.
+    element.insertAdjacentHTML() 메서드를 이용해 삽입합니다.
+
+    - 중요한 부분은 workout.description 입니다. Workout 클래스에 \_setDescription() 메서드를 생성해줍니다. 생성된 메서드는 Workout 클래스의 생성자 함수에 넣어주는게 아닌 Running,Cycling 클래스에 넣어줍니다. 이유는 description에 type이 사용되기 때문입니다.
+
+      ```js
+          _rednerWorkoutList(workout) {
+        console.log(workout);
+        let html = `
+        <li class="workout workout--${workout.type}" data-id="${workout.id}">
+        <h2 class="workout__title">${workout.description}</h2>
+        <div class="workout__details">
+          <span class="workout__icon">${
+            workout.type === 'running' ? '🏃‍♂️' : '🚴‍♀️'
+          }</span>
+          <span class="workout__value">${workout.distance}</span>
+          <span class="workout__unit">km</span>
+        </div>
+        <div class="workout__details">
+          <span class="workout__icon">⏱</span>
+          <span class="workout__value">${workout.duration}</span>
+          <span class="workout__unit">min</span>
+        </div>
+        `;
+
+        if (workout.type === 'running')
+        html += `
+        <div class="workout__details">
+        <span class="workout__icon">⚡️</span>
+        <span class="workout__value">${workout.pace.toFixed(1)}</span>
+            <span class="workout__unit">min/km</span>
+          </div>
+          <div class="workout__details">
+            <span class="workout__icon">🦶🏼</span>
+            <span class="workout__value">${workout.cadence}</span>
+        <span class="workout__unit">spm</span>
+        </div>
+          </li>
+            `;
+
+        if (workout.type === 'cycling')
+        html += `
+        <div class="workout__details">
+        <span class="workout__icon">⚡️</span>
+        <span class="workout__value">${workout.speed.toFixed(1)}</span>
+            <span class="workout__unit">km/h</span>
+          </div>
+          <div class="workout__details">
+            <span class="workout__icon">⛰</span>
+            <span class="workout__value">${workout.elevationGain}</span>
+        <span class="workout__unit">m</span>
+        </div>
+          </li>
+            `;
+
+        form.insertAdjacentHTML('afterend', html);
+        }
+      ```
+
+    * 리스트를 추가한 뒤에는 form을 재출하고 리스트가 생성될때 부자연 스럽게 생성됩니다. 이를 해결하기 위해 \_newWorkout() 메서드가 실행되면 \_hideForm() 메서드가 실행되게 생성했습니다. 속에는 input 초기화 코드와 자연스러운 스타일링을 위한 코드를 넣었습니다.
+
+      ```js
+      _hideForm() {
+        // input 초기화
+        inputDistance.value =
+        inputDuration.value =
+        inputCadence.value =
+        inputElevation.value =
+          '';
+
+        form.style.display = 'none';
+        form.classList.add('hidden');
+        setTimeout(() => (form.style.display = 'grid'), 1000);
+      }
+      ```
+
+    * 마지막으로 리스트가 추가됨 동시에 마커도 추가되어야합니다. \_renderWorkoutMarker()메서드에 popup을 커스텀합니다.
+      html 삽입때 사용했던 description을 사용합니다.
+      ```js
+      .setPopupContent(
+        `${workout.type === 'running' ? '🏃‍♂️' : '🚴‍♀️'} ${workout.description}`
+      )
+      ```

@@ -10,6 +10,15 @@ class Workout {
     this.distance = distance; // 단위는 km 입니다
     this.duration = duration; // 단위는 min 입니다.
   }
+
+  _setDescription() {
+    // prettier-ignore
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+    this.description = `${this.type[0].toUpperCase()}${this.type.slice(1)} on ${
+      months[this.date.getMonth()]
+    } ${this.date.getDate()}`;
+  }
 }
 
 // ========================== 자식 class ===========================================
@@ -20,6 +29,7 @@ class Running extends Workout {
     super(coords, distance, duration);
     this.cadence = cadence;
     this.calcPace();
+    this._setDescription();
   }
 
   calcPace() {
@@ -30,13 +40,13 @@ class Running extends Workout {
 }
 class Cycling extends Workout {
   //type 데이터를 만들었습니다.
-
   type = 'cycling';
 
   constructor(coords, distance, duration, elevationGain) {
     super(coords, distance, duration);
     this.elevationGain = elevationGain;
     this.calcSpeed();
+    this._setDescription();
   }
 
   calcSpeed() {
@@ -45,7 +55,3 @@ class Cycling extends Workout {
     return this.speed;
   }
 }
-
-// const run1 = new Running([30, -12], 5.2, 24, 178);
-// const cycling1 = new Cycling([39, -12], 27, 95, 528);
-// console.log(run1, cycling1);

@@ -1,8 +1,5 @@
 'use strict';
 
-// prettier-ignore
-const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-
 const form = document.querySelector('.form');
 const containerWorkouts = document.querySelector('.workouts');
 const inputType = document.querySelector('.form__input--type');
@@ -16,7 +13,7 @@ class App {
   //Private class fields 선언
   #map;
   #mapEvent;
-  #workout = [];
+  #workouts = [];
 
   constructor() {
     //생성자 함수를 이용해서 getPosition() 메서드를 트리거 합니다.
@@ -57,11 +54,25 @@ class App {
     // 클릭한 곳의 위치정보를 받기 위해 map.on 메서드를 사용합니다.
     this.#map.on('click', this._showForm.bind(this));
   }
+
   _showForm(mapE) {
     //받아온 mapE는 클릭한 위치정보입니다. 글로벌 변수 mapEvent에 데이터를 복사하였습니다..
     this.#mapEvent = mapE;
     form.classList.remove('hidden');
     inputDistance.focus();
+  }
+
+  _hideForm() {
+    // input 초기화
+    inputDistance.value =
+      inputDuration.value =
+      inputCadence.value =
+      inputElevation.value =
+        '';
+
+    // form.style.display = 'none';
+    form.classList.add('hidden');
+    // setTimeout(() => (form.style.display = 'grid'), 1000);
   }
 
   _toggleElevationField() {
@@ -111,23 +122,19 @@ class App {
     }
 
     // #workout 새로운 객체 추가
-    this.#workout.push(workout);
+    this.#workouts.push(workout);
 
     // 지도에 마커를 workout 렌더링합니다.
-    this.renderWorkoutMarker(workout);
+    this._renderWorkoutMarker(workout);
 
     // list에 workout을 렌더링합니다.
+    this._rednerWorkoutList(workout);
 
     // 이벤트가 발생하고 input를 초기화 해주었습니다.
-    inputDistance.value =
-      inputDuration.value =
-      inputCadence.value =
-      inputElevation.value =
-        '';
+    this._hideForm();
   }
 
   _renderWorkoutMarker(workout) {
-    console.log(workout);
     L.marker(workout.coords)
       .addTo(this.#map)
       .bindPopup(
@@ -140,8 +147,62 @@ class App {
           className: `${workout.type}-popup`,
         })
       )
-      .setPopupContent()
+      .setPopupContent(
+        `${workout.type === 'running' ? '🏃‍♂️' : '🚴‍♀️'} ${workout.description}`
+      )
       .openPopup();
+  }
+
+  _rednerWorkoutList(workout) {
+    console.log(workout);
+    let html = `
+    <li class="workout workout--${workout.type}" data-id="${workout.id}">
+      <h2 class="workout__title">${workout.description}</h2>
+      <div class="workout__details">
+        <span class="workout__icon">${
+          workout.type === 'running' ? '🏃‍♂️' : '🚴‍♀️'
+        }</span>
+        <span class="workout__value">${workout.distance}</span>
+        <span class="workout__unit">km</span>
+      </div>
+      <div class="workout__details">
+        <span class="workout__icon">⏱</span>
+        <span class="workout__value">${workout.duration}</span>
+        <span class="workout__unit">min</span>
+      </div>
+    `;
+
+    if (workout.type === 'running')
+      html += `
+      <div class="workout__details">
+        <span class="workout__icon">⚡️</span>
+        <span class="workout__value">${workout.pace.toFixed(1)}</span>
+        <span class="workout__unit">min/km</span>
+      </div>
+      <div class="workout__details">
+        <span class="workout__icon">🦶🏼</span>
+        <span class="workout__value">${workout.cadence}</span>
+        <span class="workout__unit">spm</span>
+      </div>
+    </li>
+      `;
+
+    if (workout.type === 'cycling')
+      html += `
+      <div class="workout__details">
+        <span class="workout__icon">⚡️</span>
+        <span class="workout__value">${workout.speed.toFixed(1)}</span>
+        <span class="workout__unit">km/h</span>
+      </div>
+      <div class="workout__details">
+        <span class="workout__icon">⛰</span>
+        <span class="workout__value">${workout.elevationGain}</span>
+        <span class="workout__unit">m</span>
+      </div>
+    </li>
+      `;
+
+    form.insertAdjacentHTML('afterend', html);
   }
 }
 
