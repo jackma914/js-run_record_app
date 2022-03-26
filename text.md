@@ -191,3 +191,48 @@
         inputType.addEventListener('change', this._toggleElevationField);
       }
       ```
+
+5.  workout 클래스 생성, Running, Cycling 자식 클래스를 생성합니다.
+
+    - Workout 부모 클래스의 생성자 함수에는 coords,distance,duration를 받아옵니다(이는 자식 클래스에서도 쓰이는 공통으로 사용하는 데이터입니다.)
+      ```js
+        constructor(coords, distance, duration) {
+        this.coords = coords; // 좌표
+        this.distance = distance; // 단위는 km 입니다
+        this.duration = duration; // 단위는 min 입니다.
+        }
+      ```
+    - data,id 생성, Date.now() 메소드는 UTC 기준으로 1970년 1월 1일 0시 0분 0초부터 현재까지 경과된 밀리 초를 반환합니다.
+
+      ```js
+      // 날짜를 받아옵니다.
+      date = new Date();
+      // id를 생성합니다.
+      id = (Date.now() + '').slice(-10);
+      ```
+
+    - 자식 컴포넌트인 Running,Cycling에서 부모 클래스에서 변수를 받아오기 위해 super를 사용하여 부모 생성자를 호출합니다.
+      ```js
+      class Running extends Workout {
+        constructor(coords, distance, duration, cadence) {
+          super(coords, distance, duration);
+          this.cadence = cadence;
+        }
+      }
+      ```
+    - Running 에서는 pace, Cycling 에서는 speed를 구하는 메서드를 생성합니다. Running과 Cycling 인스턴스를 생성 하여 console.log() 보면 pace와 speed가 계산되어 들어가 있는걸 확인할수 있습니다.
+
+      ```js
+
+      calcPace() {
+        // pace 구하는 공식입니다. min/km
+        this.pace = this.duration / this.distance;
+        return this.pace;
+      }
+
+        calcSpeed() {
+        // speed를 구하는 공식입니다.h를 구해야하기때문에 /60을 해줍니다. km/h
+        this.speed = this.distance / (this.duration / 60);
+        return this.speed;
+      }
+      ```

@@ -11,7 +11,7 @@ const inputDuration = document.querySelector('.form__input--duration');
 const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
 
-// ================================ App 클래스 ============================================
+// ================================= App 클래스 ============================================
 class App {
   //Private class fields 선언
   #map;
@@ -28,7 +28,6 @@ class App {
   }
 
   _getPosition() {
-    console.log(this);
     // 콜백과 오류 콜백 인자 두개를 받습니다.
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
