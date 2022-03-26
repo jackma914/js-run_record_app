@@ -459,3 +459,80 @@
         `${workout.type === 'running' ? '🏃‍♂️' : '🚴‍♀️'} ${workout.description}`
       )
       ```
+
+8.  리스트 클릭시 지도 위치이동을 구현합니다.
+
+    - \_moveToPopup() 메서드를 생성합니다. 리스트를 클릭하면 지도가 리스트의 위치로 이동합니다. 리스트를 클릭했을떄 coords 좌표를 받아와야합니다.
+      `e.target.closest('.workout')` 코드의 해석해보면 e.target은 이벤트가 발생한 대상 객체를 가르킵니다. closest는 가장 가깝고 조건에 만족하는 부모 요소를 반환합니다. 즉 .workout를 만족하는 부모요소를 찾습니다.
+      찾았다면 예를 들어 하나를보면 `<li class="workout workout--running" data-id="8315663056">` 를 반환했습니다.
+      data속성을 이용해 id값을 찾습니다.
+      `const workout = this.#workouts.find( work => work.id === workoutEl.dataset.id );`
+      해석해보면 #workouts에 들어가 있는 데이터중에 find() 메서드를 이용해서 id가 같은 데이터를 찾습니다.
+      찾은 데이터에서 workout.coords를 추출합니다.
+      그다음 #map의 setView 메서드를 이용해 위치로 이동합니다.
+
+      ```js
+        _moveToPopup(e) {
+        const workoutEl = e.target.closest('.workout');
+        console.log(workoutEl);
+
+            if (!workoutEl) return;
+            const workout = this.#workouts.find(
+              work => work.id === workoutEl.dataset.id
+            );
+
+            this.#map.setView(workout.coords, this.#mapZoomLevel, {
+              animate: true,
+              pan: {
+                duration: 1,
+              },
+            });
+        }
+      ```
+
+9.  새로고침하면 workout 데이터가 사라집니다.local storage를 이용해 local에 저장하고 받아와서 출력하겠습니다.
+
+    - 먼저 local storage에 데이터를 추가합니다.
+
+      ```js
+          _setLocalStorage() {
+          //setItem 메서드를 이용해 데이터를 추가합니다. 인자로는 키와 데이터가 필요합니다. 데이터는 문자열이여야합니다. JSON.stringify를사용해 문자열로 변환합니다.
+          localStorage.setItem('workouts', JSON.stringify(this.#workouts));
+          }
+      ```
+
+    - 데이터를 받아온 후 데이터를 #workouts 배열에 넣어줍니다 이유는 workouts 배열은 새로고침후 데이터가 초기화됩니다.
+      받은 데이터를 forEach 메서드를 사용해 리스트와 지도에 데이터를 보내줍니다.
+
+      ```js
+              _getLocalStorage() {
+              //getItem을 이용해 데이터를 가져옵니다. JSON.parse를 이용해 데이터를 문자열에서 객체로 변환하여 받아옵니다.
+              const data = JSON.parse(localStorage.getItem('workouts'));
+              console.log(data);
+
+              if (!data) return;
+
+              // workouts 배열에는 새로고침되면 데이터는 항상 비어있습니다. _getLocalStorage() 메서드는 앱이 시작되면 즉시 실행되는 메서드입니다. 실행즉시 받아온 데이터를 #workouts에 넣어줍니다.
+              this.#workouts = data;
+               // 넣어준 데이터를 forEach 메서드를 통해 list에 데이터를 넣어줍니다. forEach메서드를 사용한 이유는 새로운 배열을 생성하고 싶지 않기때문입니다. 예를들어 map 메서드는 새로운 배열을 리턴합니다.
+          // 지도에는 오류가 발생합니다. 이유는 _getLocalStorage() 메서드는 앱이 켜지고 바로 호출 되는 메서드입니다. _renderWorkoutMarker() 메서드가 받은 데이터로 마커를 실행할 시점에는 지도가 로드 되지 않았습니다.
+
+            this.#workouts.forEach(work => {
+                this._rednerWorkoutList(work);
+                this._renderWorkoutMarker(work);
+              });
+          }
+      ```
+
+    - 이를 해결하기 위해 `this.\_renderWorkoutMarker(work);` 메서드를 지워줍니다. 그다음 \_loadMap 메서드에 \_renderWorkoutMarker() 메서드만 추가해줍니다. 이유는 \_loadMap() 시점에서는 이미 지도를 사용중이기 때문입니다.
+
+      ```js
+      _loadMap(position) {
+          ...
+
+          this.#workouts.forEach(work => {
+            this._renderWorkoutMarker(work);
+          });
+        }
+
+      ```

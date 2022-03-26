@@ -12,6 +12,7 @@ const inputElevation = document.querySelector('.form__input--elevation');
 class App {
   //Private class fields 선언
   #map;
+  #mapZoomLevel = 13;
   #mapEvent;
   #workouts = [];
 
@@ -19,10 +20,14 @@ class App {
     //생성자 함수를 이용해서 getPosition() 메서드를 트리거 합니다.
     this._getPosition();
 
+    // 로컬 스토리지 에서 데이터를 가져옵니다.
+    this._getLocalStorage();
+
+    // 이벤트 헨들러
     // bind(this)를 하지 않는다면 this.는 form을 바라보게 됩니다.
     form.addEventListener('submit', this._newWorkout.bind(this));
-
     inputType.addEventListener('change', this._toggleElevationField);
+    containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
   }
 
   _getPosition() {
@@ -37,6 +42,7 @@ class App {
       );
     }
   }
+
   _loadMap(position) {
     const { latitude } = position.coords;
     const { longitude } = position.coords;
@@ -44,7 +50,7 @@ class App {
     const coords = [latitude, longitude];
 
     // map 함수는 글로벌 변수로 만들었습니다.
-    this.#map = L.map('map').setView(coords, 13);
+    this.#map = L.map('map').setView(coords, this.#mapZoomLevel);
 
     L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
       attribution:
@@ -53,6 +59,10 @@ class App {
 
     // 클릭한 곳의 위치정보를 받기 위해 map.on 메서드를 사용합니다.
     this.#map.on('click', this._showForm.bind(this));
+
+    this.#workouts.forEach(work => {
+      this._renderWorkoutMarker(work);
+    });
   }
 
   _showForm(mapE) {
@@ -132,6 +142,9 @@ class App {
 
     // 이벤트가 발생하고 input를 초기화 해주었습니다.
     this._hideForm();
+
+    // local storage
+    this._setLocalStorage();
   }
 
   _renderWorkoutMarker(workout) {
@@ -154,7 +167,6 @@ class App {
   }
 
   _rednerWorkoutList(workout) {
-    console.log(workout);
     let html = `
     <li class="workout workout--${workout.type}" data-id="${workout.id}">
       <h2 class="workout__title">${workout.description}</h2>
@@ -204,6 +216,50 @@ class App {
 
     form.insertAdjacentHTML('afterend', html);
   }
+
+  _moveToPopup(e) {
+    const workoutEl = e.target.closest('.workout');
+    console.log(workoutEl);
+
+    if (!workoutEl) return;
+    const workout = this.#workouts.find(
+      work => work.id === workoutEl.dataset.id
+    );
+
+    console.log(workout);
+
+    this.#map.setView(workout.coords, this.#mapZoomLevel, {
+      animate: true,
+      pan: {
+        duration: 1,
+      },
+    });
+  }
+
+  _setLocalStorage() {
+    //setItem 메서드를 이용해 데이터를 추가합니다. 인자로는 키와 데이터가 필요합니다. 데이터는 문자열이여야합니다. JSON.stringify를사용해 문자열로 변환합니다.
+    localStorage.setItem('workouts', JSON.stringify(this.#workouts));
+  }
+
+  _getLocalStorage() {
+    //getItem을 이용해 데이터를 가져옵니다. JSON.parse를 이용해 데이터를 문자열에서 객체로 변환하여 받아옵니다.
+    const data = JSON.parse(localStorage.getItem('workouts'));
+
+    if (!data) return;
+
+    // workouts 배열에는 새로고침되면 데이터는 항상 비어있습니다. _getLocalStorage() 메서드는 앱이 시작되면 즉시 실행되는 메서드입니다. 실행즉시 받아온 데이터를 #workouts에 넣어줍니다.
+    this.#workouts = data;
+    // 넣어준 데이터를 forEach 메서드를 통해 list에 데이터를 넣어줍니다. forEach메서드를 사용한 이유는 새로운 배열을 생성하고 싶지 않기때문입니다. 예를들어 map 메서드는 새로운 배열을 리턴합니다.
+    // 지도에는 오류가 발생합니다. 이유는 _getLocalStorage() 메서드는 앱이 켜지고 바로 호출 되는 메서드입니다. _renderWorkoutMarker() 메서드가 받은 데이터로 마커를 실행할 시점에는 지도가 로드 되지 않았습니다.
+    this.#workouts.forEach(work => {
+      this._rednerWorkoutList(work);
+    });
+  }
+
+  // _reset() {
+  //   localStorage.removeItem('workouts');
+  //   location.reload();
+  // }
 }
 
 const app = new App();
