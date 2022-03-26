@@ -16,6 +16,7 @@ class App {
   //Private class fields 선언
   #map;
   #mapEvent;
+  #workout = [];
 
   constructor() {
     //생성자 함수를 이용해서 getPosition() 메서드를 트리거 합니다.
@@ -67,9 +68,55 @@ class App {
     inputElevation.closest('.form__row').classList.toggle('form__row--hidden');
     inputCadence.closest('.form__row').classList.toggle('form__row--hidden');
   }
+
   _newWorkout(e) {
-    // console.log(this);
+    // 유효성 체크 함수를 만들었습니다. every 함수를 이용합니다.
+    // allPositiveNum은 음수인지를 판별하는 함수입니다.
+    const validInput = (...inputs) => inputs.every(inp => Number.isFinite(inp));
+    const allPositiveNum = (...inputs) => inputs.every(inp => inp > 0);
     e.preventDefault();
+
+    // form에서 데이터를 받아옵니다. inputType은 html select 테그입니다
+    const type = inputType.value;
+    const distance = +inputDistance.value;
+    const duration = +inputDuration.value;
+    const { lat, lng } = this.#mapEvent.latlng;
+    let workout;
+
+    // type이 running 이라면 running 객체를 생성합니다.
+    if (type === 'running') {
+      const cadence = +inputCadence.value;
+
+      //데이터가 유효성 체크합니다.
+      if (
+        !validInput(distance, duration, cadence) ||
+        !allPositiveNum(distance, duration, cadence)
+      ) {
+        return alert('양수만 입력 가능합니다!');
+      }
+
+      workout = new Running([lat, lng], distance, duration, cadence);
+    }
+
+    // type이 cycling 이라면 cycling 객체를 생성합니다.
+    if (type === 'cycling') {
+      const elevation = +inputElevation.value;
+      if (
+        !validInput(distance, duration, elevation) ||
+        !allPositiveNum(distance, duration)
+      )
+        return alert('양수만 입력 가능합니다!');
+
+      workout = new Cycling([lat, lng], distance, duration, elevation);
+    }
+
+    // #workout 새로운 객체 추가
+    this.#workout.push(workout);
+
+    // 지도에 마커를 workout 렌더링합니다.
+    this.renderWorkoutMarker(workout);
+
+    // list에 workout을 렌더링합니다.
 
     // 이벤트가 발생하고 input를 초기화 해주었습니다.
     inputDistance.value =
@@ -77,10 +124,11 @@ class App {
       inputCadence.value =
       inputElevation.value =
         '';
+  }
 
-    // 마커 표시
-    const { lat, lng } = this.#mapEvent.latlng;
-    L.marker([lat, lng])
+  _renderWorkoutMarker(workout) {
+    console.log(workout);
+    L.marker(workout.coords)
       .addTo(this.#map)
       .bindPopup(
         //팝업 마커를 커스텀을 위해 L.popup 메서드를 이용해 옵션을 넣어줍니다.
@@ -89,10 +137,10 @@ class App {
           minWidth: 100,
           autoClose: false,
           closeOnClick: false,
-          className: 'running-popup',
+          className: `${workout.type}-popup`,
         })
       )
-      .setPopupContent('workout')
+      .setPopupContent()
       .openPopup();
   }
 }

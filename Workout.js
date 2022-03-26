@@ -14,6 +14,8 @@ class Workout {
 
 // ========================== 자식 class ===========================================
 class Running extends Workout {
+  //type 데이터를 만들었습니다.
+  type = 'running';
   constructor(coords, distance, duration, cadence) {
     super(coords, distance, duration);
     this.cadence = cadence;
@@ -27,6 +29,10 @@ class Running extends Workout {
   }
 }
 class Cycling extends Workout {
+  //type 데이터를 만들었습니다.
+
+  type = 'cycling';
+
   constructor(coords, distance, duration, elevationGain) {
     super(coords, distance, duration);
     this.elevationGain = elevationGain;
@@ -40,6 +46,6 @@ class Cycling extends Workout {
   }
 }
 
-const run1 = new Running([30, -12], 5.2, 24, 178);
-const cycling1 = new Cycling([39, -12], 27, 95, 528);
-console.log(run1, cycling1);
+// const run1 = new Running([30, -12], 5.2, 24, 178);
+// const cycling1 = new Cycling([39, -12], 27, 95, 528);
+// console.log(run1, cycling1);

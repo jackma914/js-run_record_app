@@ -236,3 +236,142 @@
         return this.speed;
       }
       ```
+
+6.  새로운 Running,Cycling을 생성후 workouts 배열에 push 합니다. 리스트,지도를 marker와 렌더링됩니다. workout input form에서 데이터를 보내기전 유효성 검사도 구현합니다.
+
+    - 먼저 유효성 검사를 위해 생성한 함수와 type에 따라 적용해 보았습니다.
+      숫자만 적을수 있고 양수만 입력가능합니다( elevation 제외)
+      중요할점은 cycling에서 elevation은 고도를 뜻합니다. 즉 내려가는 구간이 존재하므로 음수를 사용해야합니다.
+
+      ```js
+      _newWorkout(e) {
+        // 유효성 체크 함수를 만들었습니다. every 함수를 이용합니다.
+        // allPositiveNum은 음수인지를 판별하는 함수입니다.
+        const validInput = (...inputs) =>
+          inputs.every(inp => Number.isFinite(inp));
+
+        const allPositiveNum = (...inputs) =>
+          inputs.every(inp => inp > 0);
+
+
+        e.preventDefault();
+
+        // form에서 데이터를 받아옵니다. inputType은 html select 테그입니다
+        const type = inputType.value;
+        const distance = +inputDistance.value;
+        const duration = +inputDuration.value;
+
+        // type이 running 이라면 running 객체를 생성합니다.
+        if (type === 'running') {
+          const cadence = +inputCadence.value;
+
+          //데이터가 유효성 체크합니다.
+          if (
+            // !Number.isFinite(distance) ||
+            // !Number.isFinite(duration) ||
+            // !Number.isFinite(cadence)
+            !validInput(distance, duration, cadence) ||
+            !allPositiveNum(distance, duration, cadence)
+          )
+            return alert('양수만 입력 가능합니다!');
+        }
+
+        // type이 cycling 이라면 cycling 객체를 생성합니다.
+        // elevation은 "고도" 이므로 음수도 사용가능합니다.
+        if (type === 'cycling') {
+          const elevation = +inputElevation.value;
+          if (
+            !validInput(distance, duration, elevation) ||
+            !allPositiveNum(distance, duration)
+          )
+            return alert('양수만 입력 가능합니다!');
+        }
+      ```
+
+    * 유효성에서 통과한다면 새로운 객체를 생성합니다.
+
+      ```js
+      // type이 running 이라면 running 객체를 생성합니다.
+      if (type === 'running') {
+        const cadence = +inputCadence.value;
+
+        //데이터가 유효성 체크합니다.
+        if (
+          !validInput(distance, duration, cadence) ||
+          !allPositiveNum(distance, duration, cadence)
+        ) {
+          return alert('양수만 입력 가능합니다!');
+        }
+
+        const workout = new Running([lat, lng], distance, duration, cadence);
+      }
+
+      // type이 cycling 이라면 cycling 객체를 생성합니다.
+      if (type === 'cycling') {
+        const elevation = +inputElevation.value;
+        if (
+          !validInput(distance, duration, elevation) ||
+          !allPositiveNum(distance, duration)
+        )
+          return alert('양수만 입력 가능합니다!');
+
+        const workout = new Cycling([lat, lng], distance, duration, elevation);
+      }
+      ```
+
+    * 데이터를 담아놓을 workouts 배열을 private으로 생성합니다.
+
+      ```js
+        #workout = [];
+      ```
+
+    * 생성한 배열에 workout 객체를 push해서 넣어주도록 하겠습니다. push는 running, cycling 둘중 하나에 무조건 구현되기 때문에 if문 밖에 구현했습니다.
+      ```js
+      // #workout 새로운 객체 추가
+      this.#workout.push(workout);
+      ```
+    * 여기서 새로운 문제가 발생합니다. if문에 있는 const workout은 블록스코프 이기때문에 글로벌 let workout을 생성한뒤 재할당을 해주었습니다.
+
+      ```js
+      let workout;
+
+      if (type === 'running') {
+        const cadence = +inputCadence.value;
+
+        //데이터가 유효성 체크합니다.
+        if (
+          !validInput(distance, duration, cadence) ||
+          !allPositiveNum(distance, duration, cadence)
+        ) {
+          return alert('양수만 입력 가능합니다!');
+        }
+
+        workout = new Running([lat, lng], distance, duration, cadence);
+      }
+      ```
+
+    * 새로 생성된 workout의 데이터와 마커를 렌더링합니다.
+      렌더링중 type별로 마커의 색상을 다르게하는 className옵션에 type을 더이상 가져올수 없습니다. 이를 해결하기위해 Running, Cycling 클래스에 직접 type을 정의했습니다. 이제 workout에 type데이터가 존제합니다.
+
+      ```js
+
+        // 지도에 마커를 workout 렌더링합니다.
+        this.renderWorkoutMarker(workout);
+
+      renderWorkoutMarker(workout) {
+        L.marker(workout.coords)
+          .addTo(this.#map)
+          .bindPopup(
+            //팝업 마커를 커스텀을 위해 L.popup 메서드를 이용해 옵션을 넣어줍니다.
+            L.popup({
+              maxWidth: 250,
+              minWidth: 100,
+              autoClose: false,
+              closeOnClick: false,
+              className: `${workout.type}-popup`,
+            })
+          )
+          .setPopupContent()
+          .openPopup();
+      }
+      ```
