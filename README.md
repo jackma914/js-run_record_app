@@ -24,7 +24,7 @@
 
 ---
 
-## <p styled="text-decoration: none">📌 주요 기능</p>
+## <p style="text-decoration: none">📌 주요 기능</p>
 
 <br>
 
