@@ -27,7 +27,7 @@ https://runcord.netlify.app/
 
 <br>
 
-## 📌 주요 기능
+## <p style="text-decoration: none">📌 주요 기능</p>
 
 <br>
 
