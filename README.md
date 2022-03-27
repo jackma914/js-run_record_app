@@ -3,7 +3,7 @@
 <br>
 
 <p align='center'>
-<img width='100%' src='./image/runcord.png'>
+<img width='100%' src='./image/플로우차트2.png'>
 
 </p>
 
