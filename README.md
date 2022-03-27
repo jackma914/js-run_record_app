@@ -3,7 +3,7 @@
 <br>
 
 <p align='center'>
-<img width='50%' src='./image/플로우차트.jpg'>
+<img width='50%' src='./image/플로우차트.png'>
 </p>
 
 <br>
