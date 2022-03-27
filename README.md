@@ -19,7 +19,7 @@
 
 <br>
 
-## 🏠 [Runcord](https://runcord.netlify.app/)
+## 🏃‍♂️ [Runcord](https://runcord.netlify.app/)
 
 <br>
 

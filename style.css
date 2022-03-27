@@ -49,15 +49,32 @@ a:visited {
   flex-direction: column;
 }
 
-.logo {
-  /* 이미지 중앙 정렬 하는 방법은 2가지 */
-  /* display: block;
+/* .logo { */
+/* 이미지 중앙 정렬 하는 방법은 2가지 */
+/* display: block;
   margin: auto;
   width: 5.2rem; */
-
+/* 
   height: 5.2rem;
   align-self: center;
-  margin-bottom: 4rem;
+  margin-bottom: 4rem; */
+/* } */
+
+.logo {
+  display: flex;
+  align-self: center;
+}
+.logo__img {
+  height: 5.2rem;
+  width: 5.2rem;
+  /* padding-bottom: 50px; */
+  margin-bottom: 30px;
+  padding-right: 10px;
+}
+
+.logo__name {
+  color: var(--color-light--1);
+  font-size: 30px;
 }
 
 .workouts {
