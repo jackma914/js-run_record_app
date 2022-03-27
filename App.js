@@ -35,6 +35,7 @@ class App {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         // bind(this)를 사용하여 수동으로 this에 바인딩해줍니다.
+
         this._loadMap.bind(this),
         function () {
           alert('위치 정보를 받아오지 못했습니다.');
