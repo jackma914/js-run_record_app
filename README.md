@@ -55,7 +55,7 @@ https://runcord.netlify.app/
 
 1. Geolocation API를 사용하여 사용자의 현재 위치 좌표를 받아옵니다.
 2. 위치를 받아오면 현재 위치를 지도 중앙으로 이동합니다.
-   - 사용자가 새로운 WORKOUT 추가를 하기위해 지도를 클릭합니다.
+   - 사용자가 새로운 workout 추가를 하기위해 지도를 클릭합니다.
 3. 거리, 시간,속도, 걸음 수/분 을 입력하는 input form을 렌더링합니다.
 4. 거리, 시간,속도, 고도 획득(elevation gain) 을 입력하는 input form을 렌더링합니다.
 5. 새로운 workout form이 제출되면 지도에 workout 정보와 렌더링 되어 지도에 마커를 표시합니다.
