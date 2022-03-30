@@ -1,6 +1,15 @@
 # 🏃‍♂️ [Runcord](https://runcord.netlify.app/)
 
 <br>
+
+<p align='center'>
+    <img src="https://img.shields.io/badge/javascript--4D4D4D?logo=javascript"/>
+        <img src="https://img.shields.io/badge/CSS3-4D4D4D?logo=CSS3"/>
+        <img src="https://img.shields.io/badge/HTML5-4D4D4D?logo=HTML5"/>
+    <img src="https://img.shields.io/badge/Netlify-4D4D4D?logo=Netlify" />
+
+</p>
+<br>
 <br>
 
 ## 📝 서비스 소개
@@ -12,13 +21,6 @@
 <br>
 <br>
 
-<p align='center'>
-    <img src="https://img.shields.io/badge/javascript--4D4D4D?logo=javascript"/>
-        <img src="https://img.shields.io/badge/CSS3-4D4D4D?logo=CSS3"/>
-        <img src="https://img.shields.io/badge/HTML5-4D4D4D?logo=HTML5"/>
-    <img src="https://img.shields.io/badge/Netlify-4D4D4D?logo=Netlify" />
-
-</p>
 <br>
 
 ⏱ 런닝 / 사이클을 지도와 기록을 기록하고 지도에 지도를 마킹 하는 웹 앱 입니다. <br>
