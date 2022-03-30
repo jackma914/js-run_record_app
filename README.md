@@ -3,7 +3,7 @@
 <br>
 <br>
 
-## 📌 서비스 소개
+## 📝 서비스 소개
 
 <p align='center'>
 <img width='50%' src='./image/메인.png'>
@@ -39,7 +39,7 @@ https://runcord.netlify.app/
 <br>
 
 
-## 📌 flowchart (흐름도)
+## 🛠 flowchart (흐름도)
 
 <br>
 
@@ -52,7 +52,8 @@ https://runcord.netlify.app/
 <br>
 <br>
 
-<p>1</p>. Geolocation API를 사용하여 사용자의 현재 위치 좌표를 받아옵니다.
+
+1. Geolocation API를 사용하여 사용자의 현재 위치 좌표를 받아옵니다.
 2. 위치를 받아오면 현재 위치를 지도 중앙으로 이동합니다.
    - 사용자가 새로운 workout 추가를 하기위해 지도를 클릭합니다.
 3. 거리, 시간,속도, 걸음 수/분 을 입력하는 input form을 렌더링합니다.
@@ -63,9 +64,7 @@ https://runcord.netlify.app/
 8. 페이지 로드시 로컬 저장소에 workouts 배열을 로드합니다.
 9. 로드된 리스트를 클릭시 해당 리스트의 정보와 일치하는 지도의 마커의 위치로 이동합니다.
 
-   <br>
 
----
 
 <br>
 
@@ -80,7 +79,7 @@ https://runcord.netlify.app/
 <br>
 <br>
 
-## 📌 트러블 슈팅
+## 🌟 트러블 슈팅
 
 1. bind()
 
