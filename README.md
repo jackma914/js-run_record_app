@@ -25,7 +25,7 @@
 
 ⏱ 런닝 / 사이클을 지도와 기록을 기록하고 지도에 지도를 마킹 하는 웹 앱 입니다. <br>
 
-https://runcord.netlify.app/
+✔ 배포 : https://runcord.netlify.app/
 
 <br>
 
